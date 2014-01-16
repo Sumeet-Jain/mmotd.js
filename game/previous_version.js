@@ -326,7 +326,7 @@ Grid.prototype.buildTower = function(Tower, x , y) {
 
 Grid.prototype.moveEverything = function () {
     var grid = this;
-    function mover(interval, doNotUpdate) {
+    function mover (interval, doNotUpdate) {
         interval = interval ||  (new Date).getTime() - grid.prevTime;
         var i = 0;
 

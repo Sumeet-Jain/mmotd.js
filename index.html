@@ -3,18 +3,19 @@
   <head>
     <script src="bower_components/jquery/jquery.js"> </script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"> </script>
+    <script src="node_modules/socket.io-client/dist/socket.io.min.js"> </script>
+    <script src="node_modules/underscore/underscore.js"> </script>
     <link rel="stylesheet" type="text/css" href="./bower_components/bootstrap/dist/css/bootstrap.css">
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
-    <div id="board"> 
-      <canvas id="moving-objs"> </canvas>
-    </div>
+    <canvas id="moving-objs"> </canvas>
+    <div id="board"> </div>
     <script src="game/Utility.js"> </script>
     <script src="game/Grid.js"> </script>
     <script src="game/Tower.js"> </script>
     <script src="game/Projectile.js"> </script>
     <script src="game/Creep.js"> </script>
-    <script src="game/index.js"> </script>
+    <script src="game/init.js"> </script>
   </body>
 </html>

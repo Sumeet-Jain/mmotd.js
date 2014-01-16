@@ -17,7 +17,7 @@
 
     Creep.prototype.equals = function (other) {
         return (
-            GridObj.equals.call(this, other) &&
+            GridObj.prototype.equals.call(this, other) &&
             this.damage === other.damage &&
             this.hp === other.hp &&
             this.gold === other.gold &&
@@ -45,8 +45,7 @@
         var move = this.movelist.charAt(0);
         if (this.nextSquare === null) {
             if (this.currSquare !== null) {
-                this.movelist = this.grid.findShortestPath(Math.floor(this.xPos), Math.floor(this.yPos), this.grid.endX, this.grid.endY).moves;
-                move = this.movelist.charAt(0);
+                this.movelist = this.grid.findShortestPath(Math.floor(this.xPos), Math.floor(this.yPos), this.grid.endX, this.grid.endY).moves; move = this.movelist.charAt(0);
             }
 
             this.currSquare = {x: this.xPos, y: this.yPos};

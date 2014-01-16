@@ -1,4 +1,4 @@
 var grid = new Grid.Grid();
 grid.createBackground();
 
-grid.sendCreep(Creep);
+grid.sendCreep(Creep.Creep);

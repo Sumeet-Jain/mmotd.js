@@ -1,9 +1,11 @@
 (function utilExporter (exports) {
+    
+    if (! _) _ = require('underscore')._;
 
     exports.floatsEqual = function(x, y, epislon) {
         return (
-            typeof x === 'number' && 
-            typeof y === 'number' && 
+            _.isNumber(x) &&
+            _.isNumber(y) && 
             Math.abs(x - y) < epislon
         );
     }

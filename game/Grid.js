@@ -2,6 +2,8 @@
 
     if (!Utility) Utility = require('./Utility.js');
 
+    if(!_) _ = require('underscore')._;
+
     var GridObj = function (x, y, grid) {
         this.x = x || 0;
         this.y = y || 0;
@@ -10,13 +12,13 @@
 
     GridObj.prototype.equals = function (other) {
         return (
-            Utility.floatsEqual(this.x, other.y, .001) &&
-            Utility.floatsEqual(this.x, other.y, .001)
+            Utility.floatsEqual(this.y, other.y, .001) &&
+            Utility.floatsEqual(this.x, other.x, .001)
         );
     }
 
-    GridObj.prototype.clone() = function () {
-        return $.extend({}, this);
+    GridObj.prototype.clone = function () {
+        return _.clone(this);
     }
 
     var Square = function (x, y, grid) {
@@ -29,16 +31,6 @@
     };
 
     Square.prototype = new GridObj();
-
-    Square.prototype.clone() = {
-        var clone = new Square(this.x, this.y, this.grid);
-        clone.canWalk = this.canWalk;
-        clone.canBuild = this.canBuild;
-        clone.item = this.item;
-        clone.texture = this.texture;
-        clone.node = this.node;
-        return clone;
-    };
 
     exports.GridObj = GridObj;
     exports.Square = Square;
@@ -140,23 +132,24 @@
             j;
 
         for (i = 0; i < this.creeps.length; i++) {
-            clone.creeps.push(this.creeps[0].clone());
+            clone.creeps.push(this.creeps[i].clone());
         }
 
         for (i = 0; i < this.towers.length; i++) {
-            clone.towers.push(this.towers[0].clone());
+            clone.towers.push(this.towers[i].clone());
         }
 
         for (i = 0; i < this.projectiles.length; i++) {
-            clone.projectiles.push(this.projectiles[0].clone());
-        }
+            clone.projectiles.push(this.projectiles[i].clone());
+        };
 
-        for (i = 0: i < this.grid.length; i++) {
+        for (i = 0; i < this.grid.length; i++) {
             for (j = 0; j < this.grid[0].length; j++) {
                 clone.grid[i][j] = this.grid[i][j].clone();
             }
         }
-    }
+        return clone;
+    };
 
     Grid.prototype.equals = function (other) {
         var i;
@@ -171,15 +164,24 @@
            )  return false;
 
         for (i = 0; i < this.towers.length; i++) {
-            if (! this.towers[i].equals(other.towers[i])) return false;
+            if (! this.towers[i].equals(other.towers[i])) {
+                console.log("towers");
+                return false;
+            }
         }
 
         for (i = 0; i < this.creeps.length; i++) {
-            if (! this.towers[i].equals(other.towers[i])) return false;
+            if (! this.creeps[i].equals(other.creeps[i])) {
+                console.log("creeps");
+                return false;
+            }
         }  
 
-        for (i = 0; i < this.projectiless.length; i++) {
-            if (! this.towers[i].equals(other.towers[i])) return false;
+        for (i = 0; i < this.projectiles.length; i++) {
+            if (! this.projectiles[i].equals(other.projectiles[i])) {
+                console.log("proj");
+                return false;
+            }
         }
 
         return true

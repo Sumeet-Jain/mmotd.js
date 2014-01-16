@@ -13,7 +13,7 @@
     Projectile.prototype = new GridObj();
 
     Projectile.prototype.clone = function () {
-        var clone =  GridObj.clone.call(this);
+        var clone =  GridObj.prototype.clone.call(this);
         clone.creep = this.creep.clone();
         return clone;
     };
@@ -21,7 +21,7 @@
     Projectile.prototype.equals = function (other) {
         var delta = .001;
         return (
-            GridObj.equals.call(this, other) &&
+            GridObj.prototype.equals.call(this, other) &&
             this.damage === other.damage &&
             this.speed === other.speed &&
             this.creep.equals(other.creep)

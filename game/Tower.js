@@ -17,7 +17,7 @@
 
     Tower.prototype.equals = function (other) {
         return (
-            GridObj.equals.call(this, other) &&
+            GridObj.prototype.equals.call(this, other) &&
             this.name === other.name &&
             this.range === other.range &&
             Utility.floatsEqual(this.currCooldown, other.currCooldown, .001) &&
