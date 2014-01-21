@@ -1,8 +1,7 @@
 (function exportGrid (exports) {
 
-    if (!Utility) Utility = require('./Utility.js');
-
-    if(!_) _ = require('underscore')._;
+    Utility = (typeof Utility === 'undefined') ? require('./Utility') : Utility;
+    if (typeof _ === undefined) _ = require('underscore')._;
 
     var GridObj = function (x, y, grid) {
         this.x = x || 0;
@@ -12,13 +11,19 @@
 
     GridObj.prototype.equals = function (other) {
         return (
-            Utility.floatsEqual(this.y, other.y, .001) &&
-            Utility.floatsEqual(this.x, other.x, .001)
+            Utility.floatsEqual(this.y, other.y, .01) &&
+            Utility.floatsEqual(this.x, other.x, .01)
         );
     }
 
     GridObj.prototype.clone = function () {
         return _.clone(this);
+    }
+
+    GridObj.prototype.replace = function (other) {
+        for (prop in other) {
+            this[prop] = other[prop];
+        }
     }
 
     var Square = function (x, y, grid) {
@@ -58,6 +63,66 @@
             for(x = 0; x < this.cols; x++) {
                 this.grid[y][x] = new Square(x, y);
             }
+        }
+    }
+
+    Grid.prototype.replace = function (other) {
+        var i;
+
+        for (i = 0; i < other.creeps.length; i++) {
+            if (i < this.creeps.length) {
+                this.creeps[i].replace(other.creeps[i]);
+            } else {
+                this.creeps.push((new Creep).replace(other.creeps[i]));
+            }
+        }
+
+        for (i = 0; i < other.towers.length; i++) {
+            if (i < this.towers.length) {
+                this.towers[i].replace(other.towers[i]);
+            } else {
+                this.towers.push((new Tower).replace(other.towers[i]));
+            }
+        } 
+
+        for (i = 0; i < other.projectiles.length; i++) {
+            if (i < this.projectiles.length) {
+                this.projectiles[i].replace(other.projectiles[i]);
+            } else {
+                this.projectiles.push((new Projectile).replace(other.projectiles[i]));
+            }
+        }      
+    }
+
+    Grid.prototype.removeCircularity = function () {
+        var i;
+
+        for (i = 0; i < this.creeps.length; i++) {
+            this.creeps[i].grid = null;
+        }
+        
+        for (i = 0; i < this.projectiles.length; i++) {
+            this.projectiles[i].grid = null;
+        }
+
+        for (i = 0; i < this.towers.length; i++) {
+            this.towers[i].grid = null;
+        }
+    }
+
+    Grid.prototype.restoreCircularity = function () {
+        var i;
+
+        for (i = 0; i < this.creeps.length; i++) {
+            this.creeps[i].grid = this;
+        }
+        
+        for (i = 0; i < this.projectiles.length; i++) {
+            this.projectiles[i].grid = this;
+        }
+
+        for (i = 0; i < this.towers.length; i++) {
+            this.towers[i].grid = this;
         }
     }
 
@@ -106,23 +171,18 @@
         return xInBounds && yInBounds;
     };
 
-    Grid.prototype.sendCreep = function (Creep) {
-        var creep = new Creep(this.startX, this.startY, this);
-        this.creeps.push(creep);
-    };
-
     Grid.prototype.update = function (delta) { 
         var i = 0;
         for (i = 0; i < this.projectiles.length; i++) {
-            projectiles[i].move(delta);
+            this.projectiles[i].move(delta);
         }
 
         for (i = 0; i < this.towers.length; i++) {
-            towers[i].attack(delta);
+            this.towers[i].attack(delta);
         }
 
         for (i = 0; i < this.creeps.length; i++) {
-            creeps[i].move(delta);
+            this.creeps[i].move(delta);
         }
     };
 
@@ -148,6 +208,7 @@
                 clone.grid[i][j] = this.grid[i][j].clone();
             }
         }
+
         return clone;
     };
 
@@ -155,8 +216,8 @@
         var i;
         if (other === undefined || other.towers === undefined ||
                 other.creeps === undefined || other.projectiles === undefined) {
-            return false;
-        }
+                    return false;
+                }
 
         if (other.towers.length !== this.towers.length ||
                 other.creeps.length !== this.creeps.length ||
@@ -185,6 +246,133 @@
         }
 
         return true
+    };
+
+    Grid.prototype.findShortestPath = function(startX, startY, endX, endY) {;
+        var visited = new Array(this.rows),
+            queue = [],
+            x = 0,
+            y = 0,
+            nextEle;
+
+        for(y = 0; y < visited.length; y++) { 
+            visited[y] = new Array(this.cols);
+        }
+
+        function enqueue(queObj, gridRef) {
+            //gridRef is the grid which the parent function is in. Cant use keyword this
+            //Only looks at left, right, up, and down of current square
+            var x = queObj.x,
+                y = queObj.y,
+                previous = queObj.moves;
+
+            if (x === endX && y === endY) 
+                return {x: x, y: y, moves: previous || ''};
+
+            x++;
+            previous = previous || '';
+            if (gridRef.inGrid(x, y) && !visited[y][x] && gridRef.grid[y][x].canWalk) {
+                queue.push({x: x, y: y, moves: previous + 'r'});
+                visited[y][x] = true;
+            }
+
+            x -= 2;
+            if (gridRef.inGrid(x, y) && !visited[y][x] && gridRef.grid[y][x].canWalk) {
+                queue.push({x: x, y: y, moves: previous + 'l'});
+                visited[y][x] = true;
+            }
+
+            x++;
+            y++;
+            if (gridRef.inGrid(x, y) && !visited[y][x] && gridRef.grid[y][x].canWalk) {
+                queue.push({x: x, y: y, moves: previous + 'd'});
+                visited[y][x] = true;
+            }
+
+            y -= 2;
+            if (gridRef.inGrid(x, y) && !visited[y][x] && gridRef.grid[y][x].canWalk) {
+                queue.push({x: x, y: y, moves: previous + 'u'});
+                visited[y][x] = true;
+            }
+        };
+
+        nextEle = enqueue({x: startX, y: startY}, this);
+        if (nextEle)
+            return nextEle;
+
+        while (queue.length) {
+            nextEle = enqueue(queue.shift(), this);
+            if (nextEle) {
+                return nextEle;
+            }
+        }
+    };
+
+    Grid.prototype.buildTower = function(Tower, x, y) {
+        if (this.inGrid(x,y)) {
+            var square = this.grid[y][x],
+                i = 0,
+                  tower = new Tower(x, y, this),
+                  creep,
+                  tower,
+                  content;
+
+            square.canWalk = false;
+
+            if (square.canBuild && this.player.gold > tower.cost &&
+                    this.findShortestPath(this.startX, this.startY, this.endX, this.endY)) {
+                        square.canBuild = false;
+
+                        if (square.node) {
+                            square.node.style.background = tower.background;
+                            $(square.node).popover({
+                                trigger: 'hover',
+                                html: 'true',
+                                delay: 0,
+                                content: function () {
+                                    content = [
+                                        '<div> ',
+                                        tower.name + ' <br> ',
+                                        'Cooldown: ' + tower.cooldown + ' <br> ',
+                                        'Range: ' + tower.range + ' <br> ',
+                                        '</div>'
+                                    ]
+                                    return content.join();
+                                },
+                                placement: "auto top",
+                            });
+                        };
+
+                        this.towers.push(tower);
+
+                        for (i = 0; i < this.creeps.length; i++) {
+                            creep = this.creeps[i];
+                            if (creep.nextSquare && creep.nextSquare.x === x && creep.nextSquare.y === y) { 
+                                var dir = creep.nextSquare.dir,
+                                    reverse;
+                                if (dir === 'r') reverse = 'l';
+                                else if (dir === 'l') reverse = 'r';
+                                else if (dir === 'u') reverse = 'd';
+                                else if (dir === 'd') reverse = 'u';
+                                creep.nextSquare = {x: creep.currSquare.x, y: creep.currSquare.y, dir: reverse};
+                                creep.movelist = reverse + creep.movelist;
+                            }
+                        }
+
+                        this.player.gold -= tower.cost;
+                        if (this.player.socket) {
+                            this.player.onBuildTower({
+                                x: x,
+                                y: y,
+                                tower: Tower
+                            })
+                        };
+                        return true;
+                    }
+            
+            square.canWalk = true
+        }
+        return false;
     };
 
     exports.Grid = Grid;

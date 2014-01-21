@@ -1,5 +1,6 @@
 (function exportTower (exports) {
-    var GridObj = Grid ? Grid.GridObj : require('./Grid.js').GridObj;
+
+    var GridObj = (typeof Grid !== 'undefined') ? Grid.GridObj : require('./Grid.js').GridObj;
 
     if (!GridObj) throw Error("Gridobj not found");
 

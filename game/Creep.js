@@ -1,16 +1,20 @@
 (function exportCreep (exports) {
 
-    var GridObj = Grid ? Grid.GridObj : require('./Grid.js').GridObj;
-    if (!GridObj) throw Error('GridObj not found');
+    var GridObj = (typeof Grid !== 'undefined') ? Grid.GridObj : require('./Grid.js').GridObj;
 
-    function Creep(xPos, yPos, grid) { 
-        GridObj.call(this, xPos, yPos, grid);
+    if (!GridObj) throw Error('GridObj not found');
+    
+    if (typeof Utility === 'undefined') Utility = require('./Utility');
+
+    function Creep(x, y, grid) { 
+        GridObj.call(this, x, y, grid);
         this.currSquare = null;
         this.nextSquare = null;
         this.damage = 1;
         this.hp = 5;
         this.gold = 10;
-        this.speed = 300;
+        this.speed = 1000;
+        this.movelist = this.grid.findShortestPath(this.x, this.y, this.grid.endX, this.grid.endY).moves;
     };
 
     Creep.prototype = new GridObj();
@@ -26,51 +30,49 @@
     }
 
     Creep.prototype.reachedEnd = function() {
-        if (this.xPos === this.grid.endX && this.yPos === this.grid.endY) {
-            this.grid.player.lives--;
-            if (this.grid.player.lives <= 0) {
-                this.grid.player.dies();
-            }
-        }
+        if (this.x === this.grid.endX && this.y === this.grid.endY) {
+            this.grid.player.leaked();
+        };
     };
 
     Creep.prototype.move = function(interval, speed) { 
         speed = speed || this.speed;
         if (this.movelist === '') { 
             this.reachedEnd();
-            removeFromArr(this.grid.creeps, this);
+            Utility.removeFromArr(this.grid.creeps, this);
             return true;
         }
 
         var move = this.movelist.charAt(0);
         if (this.nextSquare === null) {
             if (this.currSquare !== null) {
-                this.movelist = this.grid.findShortestPath(Math.floor(this.xPos), Math.floor(this.yPos), this.grid.endX, this.grid.endY).moves; move = this.movelist.charAt(0);
+                this.movelist = this.grid.findShortestPath(Math.floor(this.x), Math.floor(this.y), this.grid.endX, this.grid.endY).moves;
+                move = this.movelist.charAt(0);
             }
 
-            this.currSquare = {x: this.xPos, y: this.yPos};
-            this.grid.grid[this.yPos][this.xPos].canBuild = false;
+            this.currSquare = {x: this.x, y: this.y};
+            this.grid.grid[this.y][this.x].canBuild = false;
 
             //OPTIMIZATION Change r,l,d,u to an enum. Makes math/life easier. Beware of concatenation.
             if (move === 'r') {
-                this.nextSquare = {x: this.xPos + 1, y: this.yPos, dir: 'r'}
+                this.nextSquare = {x: this.x + 1, y: this.y, dir: 'r'}
             } else if (move === 'l') {
-                this.nextSquare = {x: this.xPos - 1, y: this.yPos, dir: 'l'}
+                this.nextSquare = {x: this.x - 1, y: this.y, dir: 'l'}
             } else if (move === 'd') {
-                this.nextSquare = {x: this.xPos, y: this.yPos + 1, dir: 'd'}
+                this.nextSquare = {x: this.x, y: this.y + 1, dir: 'd'}
             } else if (move === 'u') {
-                this.nextSquare = {x: this.xPos, y: this.yPos - 1, dir: 'u'}
+                this.nextSquare = {x: this.x, y: this.y - 1, dir: 'u'}
             }
         }
 
         if (move === 'r') {
-            this.xPos += interval / speed;
+            this.x += interval / speed;
         } else if (move === 'l') {
-            this.xPos -= interval / speed;
+            this.x -= interval / speed;
         } else if (move === 'd') {
-            this.yPos += interval / speed;
+            this.y += interval / speed;
         } else if (move === 'u') {
-            this.yPos -= interval / speed;
+            this.y -= interval / speed;
         }
 
         if (this.nextSquare) {
@@ -78,21 +80,21 @@
                 onNextSquare = false,
                 difference;
 
-            if (dir === 'r' && this.xPos >= this.nextSquare.x) { 
-                difference = this.xPos - this.nextSquare.x;
-                this.xPos = this.nextSquare.x;
+            if (dir === 'r' && this.x >= this.nextSquare.x) { 
+                difference = this.x - this.nextSquare.x;
+                this.x = this.nextSquare.x;
                 onNextSquare = true;
-            } else if (dir === 'l' && this.xPos  <= this.nextSquare.x) {
-                difference = this.nextSquare.x - this.xPos;
-                this.xPos = this.nextSquare.x;
+            } else if (dir === 'l' && this.x  <= this.nextSquare.x) {
+                difference = this.nextSquare.x - this.x;
+                this.x = this.nextSquare.x;
                 onNextSquare = true;
-            } else if (dir === 'd' && this.yPos  >= this.nextSquare.y) {
-                difference = this.yPos - this.nextSquare.y;
-                this.yPos = this.nextSquare.y;
+            } else if (dir === 'd' && this.y  >= this.nextSquare.y) {
+                difference = this.y - this.nextSquare.y;
+                this.y = this.nextSquare.y;
                 onNextSquare = true;
-            } else if (dir === 'u' && this.yPos  <= this.nextSquare.y) {
-                difference = this.nextSquare.y - this.yPos;
-                this.yPos = this.nextSquare.y;
+            } else if (dir === 'u' && this.y  <= this.nextSquare.y) {
+                difference = this.nextSquare.y - this.y;
+                this.y = this.nextSquare.y;
                 onNextSquare = true;
             }
 
@@ -111,8 +113,8 @@
     Creep.prototype.draw = function (canvas, ctx) {
         ctx.fillStyle = "black";
         ctx.beginPath();
-        var offset = BLOCKSIZE / 2;
-        ctx.arc(this.xPos*BLOCKSIZE + offset, this.yPos*BLOCKSIZE + offset, 5, 0, 2*Math.PI, false);
+        var offset = this.grid.sqSize / 2;
+        ctx.arc(this.x * this.grid.sqSize + offset, this.y * this.grid.sqSize + offset, 5, 0, 2*Math.PI, false);
         ctx.fill();
         ctx.closePath();
     };
@@ -128,10 +130,10 @@
 
     Creep.prototype.die = function () {
         if (this.hp <= 0) {
-            removeFromArr(this.grid.creeps, this);
+            Utility.removeFromArr(this.grid.creeps, this);;
             this.grid.grid[this.currSquare.y][this.currSquare.x].canBuild = true;
-            this.grid.player.gold += this.gold;
-        }
+            this.grid.player.killedCreep(this.gold);
+        };
     };
 
     exports.Creep = Creep;

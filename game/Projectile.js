@@ -1,7 +1,9 @@
 (function (exports) {
 
-    var GridObj = Grid ? Grid.GridObj : require('./Grid.js').GridObj;
+    var GridObj = (typeof Grid !== 'undefined') ? Grid.GridObj : require('./Grid.js').GridObj;
     if (!GridObj) throw Error('GridObj not found');
+
+    Utility = (typeof Utility === 'undefined') ? require('./Utility') : Utility;
 
     function Projectile(x, y, grid, creep) {
         GridObj.call(this, x, y, grid);
@@ -45,9 +47,9 @@
         } 
 
         //If hit
-        if (Math.abs(this.xPos - destX) < delta && Math.abs(this.yPos - destY) < delta || this.creep.hp <= 0) {
+        if (Utility.floatsEqual(xPos, destX, delta) && Utility.floatsEqual(yPos, destY, delta) || this.creep.hp <= 0) {
             this.creep.getHit(this.damage);
-            removeFromArr(this.grid.projectiles, this);
+            Utility.removeFromArr(this.grid.projectiles, this);
             return true;
         }
     }
@@ -62,4 +64,4 @@
     }
 
     exports.Projectile = Projectile;
-})(typeof exports === 'undefined' ? this['Projectile'] = {} : exports);
+}) (typeof exports === 'undefined' ? this['Projectile'] = {} : exports);
