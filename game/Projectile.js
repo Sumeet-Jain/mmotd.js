@@ -17,6 +17,7 @@
     Projectile.prototype.clone = function () {
         var clone =  GridObj.prototype.clone.call(this);
         clone.creep = this.creep.clone();
+        console.log('Cloninnn');
         return clone;
     };
 
@@ -35,20 +36,22 @@
     }
 
     Projectile.prototype.move = function(interval) {
-        var destX = this.creep.xPos,
-            destY = this.creep.yPos,
-            xDist = destX - this.xPos,
-            yDist = destY - this.yPos,
+        var destX = this.creep.x,
+            destY = this.creep.y,
+            xDist = destX - this.x,
+            yDist = destY - this.y,
             totalDist = Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2)),
-            delta = BLOCKSIZE / 500;
+            delta = .1;
+
         if (this.creep.hp > 0) { 
-            this.xPos += (xDist / totalDist) * interval / this.speed;
-            this.yPos += (yDist / totalDist) * interval / this.speed;
+            this.x += (xDist / totalDist) * interval / this.speed;
+            this.y += (yDist / totalDist) * interval / this.speed;
         } 
 
         //If hit
-        if (Utility.floatsEqual(xPos, destX, delta) && Utility.floatsEqual(yPos, destY, delta) || this.creep.hp <= 0) {
+        if (Utility.floatsEqual(this.x, destX, delta) && Utility.floatsEqual(this.y, destY, delta) || this.creep.hp <= 0) {
             this.creep.getHit(this.damage);
+            console.log('Yippy');
             Utility.removeFromArr(this.grid.projectiles, this);
             return true;
         }
@@ -57,8 +60,8 @@
     Projectile.prototype.draw = function(canvas, ctx) { 
         ctx.fillStyle = "white";
         ctx.beginPath();
-        var offset = BLOCKSIZE/2
-        ctx.arc(this.xPos*BLOCKSIZE + offset,  this.yPos*BLOCKSIZE + offset, 2, 0, 2*Math.PI, false);
+        var offset = this.grid.sqSize/2
+        ctx.arc(this.x*this.grid.sqSize + offset,  this.y*this.grid.sqSize + offset, 2, 0, 2*Math.PI, false);
         ctx.fill();
         ctx.closePath();
     }

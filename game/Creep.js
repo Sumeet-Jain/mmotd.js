@@ -14,10 +14,16 @@
         this.hp = 5;
         this.gold = 10;
         this.speed = 1000;
-        this.movelist = this.grid.findShortestPath(this.x, this.y, this.grid.endX, this.grid.endY).moves;
+        if (this.grid) {
+            this.movelist = this.generateMovelist();
+        }
     };
 
     Creep.prototype = new GridObj();
+
+    Creep.prototype.generateMovelist = function () {
+        return this.grid.findShortestPath(this.x, this.y, this.grid.endX, this.grid.endY).moves;
+    }
 
     Creep.prototype.equals = function (other) {
         return (
@@ -31,12 +37,22 @@
 
     Creep.prototype.reachedEnd = function() {
         if (this.x === this.grid.endX && this.y === this.grid.endY) {
-            this.grid.player.leaked();
+            try {
+                this.grid.player.leaked();
+            } catch (e) {
+                debugger;
+                console.log(e);
+            }
         };
     };
 
     Creep.prototype.move = function(interval, speed) { 
         speed = speed || this.speed;
+
+        if (this.movelist === undefined) {
+            this.movelist = this.generateMovelist();
+        }
+
         if (this.movelist === '') { 
             this.reachedEnd();
             Utility.removeFromArr(this.grid.creeps, this);
@@ -130,9 +146,11 @@
 
     Creep.prototype.die = function () {
         if (this.hp <= 0) {
-            Utility.removeFromArr(this.grid.creeps, this);;
-            this.grid.grid[this.currSquare.y][this.currSquare.x].canBuild = true;
-            this.grid.player.killedCreep(this.gold);
+            if (this.grid) {
+                Utility.removeFromArr(this.grid.creeps, this);;
+                this.grid.grid[this.currSquare.y][this.currSquare.x].canBuild = true;
+                this.grid.player.killedCreep(this.gold);
+            }
         };
     };
 

@@ -1,7 +1,7 @@
 (function exportGrid (exports) {
 
     Utility = (typeof Utility === 'undefined') ? require('./Utility') : Utility;
-    if (typeof _ === undefined) _ = require('underscore')._;
+    if (typeof _ === 'undefined') _ = require('underscore')._;
 
     var GridObj = function (x, y, grid) {
         this.x = x || 0;
@@ -69,29 +69,28 @@
     Grid.prototype.replace = function (other) {
         var i;
 
+        this.creeps = [];
+        this.towers = [];
+        this.projectiles = [];
+
         for (i = 0; i < other.creeps.length; i++) {
-            if (i < this.creeps.length) {
-                this.creeps[i].replace(other.creeps[i]);
-            } else {
-                this.creeps.push((new Creep).replace(other.creeps[i]));
-            }
+            var c = new Creep();
+            c.replace(other.creeps[i]);
+            this.creeps.push(c);
         }
 
         for (i = 0; i < other.towers.length; i++) {
-            if (i < this.towers.length) {
-                this.towers[i].replace(other.towers[i]);
-            } else {
-                this.towers.push((new Tower).replace(other.towers[i]));
-            }
+            var t = new Tower.Tower();
+            t.replace(other.towers[i]);
+            this.towers.push(t);
         } 
 
         for (i = 0; i < other.projectiles.length; i++) {
-            if (i < this.projectiles.length) {
-                this.projectiles[i].replace(other.projectiles[i]);
-            } else {
-                this.projectiles.push((new Projectile).replace(other.projectiles[i]));
-            }
-        }      
+            var p = new Projectile.Projectile();
+            p.replace(other.projectiles[i]);
+            p.creep.__proto__ = Creep.prototype;
+            this.projectiles.push(p);
+        }
     }
 
     Grid.prototype.removeCircularity = function () {
@@ -309,6 +308,14 @@
     };
 
     Grid.prototype.buildTower = function(Tower, x, y) {
+
+        if (this.player.socket) {
+            this.player.onBuildTower({
+                x: x,
+                y: y,
+            })
+        };
+
         if (this.inGrid(x,y)) {
             var square = this.grid[y][x],
                 i = 0,
@@ -318,8 +325,11 @@
                   content;
 
             square.canWalk = false;
+            console.log('check 1');
 
-            if (square.canBuild && this.player.gold > tower.cost &&
+            if (
+                    square.canBuild &&
+                    this.player.gold > tower.cost &&
                     this.findShortestPath(this.startX, this.startY, this.endX, this.endY)) {
                         square.canBuild = false;
 
@@ -343,6 +353,7 @@
                             });
                         };
 
+                        console.log('pushin');
                         this.towers.push(tower);
 
                         for (i = 0; i < this.creeps.length; i++) {
@@ -360,13 +371,6 @@
                         }
 
                         this.player.gold -= tower.cost;
-                        if (this.player.socket) {
-                            this.player.onBuildTower({
-                                x: x,
-                                y: y,
-                                tower: Tower
-                            })
-                        };
                         return true;
                     }
             

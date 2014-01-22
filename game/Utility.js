@@ -5,7 +5,6 @@
     }
 
     exports.floatsEqual = function(x, y, epislon) {
-        console.log(Math.abs(x - y));
         return (
             _.isNumber(x) &&
             _.isNumber(y) && 
