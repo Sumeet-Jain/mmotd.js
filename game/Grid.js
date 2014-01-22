@@ -102,6 +102,7 @@
         
         for (i = 0; i < this.projectiles.length; i++) {
             this.projectiles[i].grid = null;
+            this.projectiles[i].creep.grid = null;
         }
 
         for (i = 0; i < this.towers.length; i++) {
@@ -118,6 +119,7 @@
         
         for (i = 0; i < this.projectiles.length; i++) {
             this.projectiles[i].grid = this;
+            this.projectiles[i].creep.grid = this;
         }
 
         for (i = 0; i < this.towers.length; i++) {

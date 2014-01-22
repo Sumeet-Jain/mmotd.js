@@ -78,7 +78,6 @@
     Player.prototype.onBuildTower = function (info) {
         info.timestamp = Date.now();
         this.socket.emit('buildTower', info);
-        this.sync();
     };
 
     Player.prototype.leaked = function () {

@@ -47,7 +47,12 @@ io.sockets.on('connection', function onConnect (socket) {
             player.canUpdate = false;
             grid.removeCircularity();
 
-            socket.emit('synced', result);
+            try {
+                socket.emit('synced', result);
+            } catch (e) {
+                console.log(result);
+                throw e;
+            }
 
             player.grid = grid;
             grid.player = player;
