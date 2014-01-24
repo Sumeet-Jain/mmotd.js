@@ -349,7 +349,7 @@
                                         'Range: ' + tower.range + ' <br> ',
                                         '</div>'
                                     ]
-                                    return content.join();
+                                    return content.join(' ');
                                 },
                                 placement: "auto top",
                             });
