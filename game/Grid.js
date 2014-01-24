@@ -31,11 +31,18 @@
         this.canWalk = true;
         this.canBuild = true;
         this.item = null;
-        this.texture = 'green';
+        this.texture = 'purple';
         this.node = null;
     };
 
     Square.prototype = new GridObj();
+
+    Square.prototype.replace = function (other) {
+        this.canWalk = other.canWalk;
+        this.canBuild = other.canBuild;
+        this.item = other.item;
+        this.texture = other.texture;
+    }
 
     exports.GridObj = GridObj;
     exports.Square = Square;
@@ -67,11 +74,17 @@
     }
 
     Grid.prototype.replace = function (other) {
-        var i;
+        var i, j;
 
         this.creeps = [];
         this.towers = [];
         this.projectiles = [];
+
+        for (i = 0; i < other.grid.length; i++) {
+            for (j = 0; j < other.grid[0].length; j++) {
+                this.grid[i][j].replace(other.grid[i][j]);
+            }
+        }
 
         for (i = 0; i < other.creeps.length; i++) {
             var c = new Creep();
@@ -171,6 +184,18 @@
             yInBounds = y >= 0 && y < this.rows;
         return xInBounds && yInBounds;
     };
+
+    Grid.prototype.updateBackground = function () {
+        var i, j, color;
+        for (i = 0; i < this.grid.length; i++) {
+            for (j = 0; i < this.grid[0].length; j++) {
+                color = this.grid[i][j].node.style.color;
+                if (color != this.grid[i][j].texture) {
+                    this.grid[i][j].node.style.backgroundColor = color;
+                }
+            }
+        }
+    }
 
     Grid.prototype.update = function (delta) { 
         var i = 0;

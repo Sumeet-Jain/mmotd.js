@@ -1,6 +1,6 @@
 (function exportPlayer (exports) {
 
-    var HOST = '192.168.2.7:8080'
+    var HOST = '192.168.2.7:8080';
     Creep = (typeof Creep === 'undefined') ? require('./Creep').Creep : Creep.Creep;
 
     var Player = function () {
@@ -67,7 +67,6 @@
         var prevGrid = this.syncRequest[data.requestNum],
             verified = prevGrid.equals(data.grid) && this.equals(data.player);
             */
-            console.log('Reassigning shit');
             this.grid.replace(data.grid);
             this.grid.restoreCircularity();
             this.grid.player = this;
