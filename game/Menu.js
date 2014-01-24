@@ -1,12 +1,19 @@
-var BLOCKSIZE = Grid.sqSize;
+var Grid = require('./Grid'),
+    BLOCKSIZE = Grid.sqSize;
+
 function Menu() {
     this.towerList = [];
+    this.draggingItem = false;
+    this.mouseX = null;
+    this.mouseY = null;
 }
 
 Menu.prototype.update = function() {
     var menuNode = document.getElementById('menu'),
+        menu = this,
         i,
-        node;
+        node,
+        tower;
 
     for (i = 0; i < this.towerList.length; i++) {
         tower = new this.towerList[i]();
@@ -16,9 +23,9 @@ Menu.prototype.update = function() {
         node.style.width = BLOCKSIZE + "px";
         node.style.height = BLOCKSIZE + "px";
         node.addEventListener("click", function (e) {
-            draggingItem = this;
-            mouseX = e.pageX;
-            mouseY = e.pageY;
+            menu.draggingItem = this;
+            menu.mouseX = e.pageX;
+            menu.mouseY = e.pageY;
         });
         menuNode.appendChild(node);
         $(node).popover({
@@ -27,8 +34,11 @@ Menu.prototype.update = function() {
             content: "hello world",
         });
     }
+
 };
 
 Menu.prototype.addTower = function (Tower) {
     this.towerList.push(Tower);
 };
+
+module.exports = Menu;

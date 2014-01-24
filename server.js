@@ -1,8 +1,8 @@
 var connect = require('connect'),
     io = require('socket.io'),
-    Grid = require('./game/Grid.js').Grid,
-    Player = require('./game/Player.js').Player,
-    Tower = require('./game/Tower.js').Tower,
+    Grid = require('./game/Grid.js'),
+    Player = require('./game/Player.js'),
+    Tower = require('./game/Tower.js'),
     clients = {},
     actionQueue = [],
     currentID = 0,
@@ -39,7 +39,7 @@ io.sockets.on('connection', function onConnect (socket) {
                 result = {
                     player: player,
                     grid: grid,
-                    requestNum: data.requestNum
+                    timestamp: player.gameTime
                 };
 
             player.grid = null;
@@ -108,7 +108,6 @@ function processActionQueue (limit) {
         
     while (actionQueue.length) {
         action = actionQueue.shift();
-        console.log("performing action: " + action.action);
         player = clients[action.playerId];
 
         player.update(Date.now());
@@ -118,8 +117,6 @@ function processActionQueue (limit) {
         } else if (action.action == 'send') { 
             for (playerId in clients) {
                 if (playerId != action.playerId) { 
-                    console.log('sending to: ' + playerId);
-                    console.log('I am player: ' + action.playerId);
                     clients[playerId].sentCreep();
                 }
             }
