@@ -15,7 +15,11 @@
         var canvas = document.getElementById('moving-objs'),
             ctx = canvas.getContext('2d');
 
-        player.update(Date.now());
+        if (!player.justSynced) {
+            player.update(Date.now());
+        } else {
+            player.justSynced = false;
+        }
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 

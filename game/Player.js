@@ -6,7 +6,6 @@ var Player = function () {
     this.lives = 20;
     this.lastSync = null;
     this.requestNum = 0;
-    this.syncRequest = {};
     this.lastUpdated = null;
 } 
 
@@ -56,6 +55,7 @@ Player.prototype.onSynced = function (data) {
     var lastSnapshot = player.lastSnapshot;
     if (data.gametime > lastSnapshot) {
         this.grid.replace(data.grid);
+        this.justSynced = true;
     }
     this.grid.restoreCircularity();
     this.grid.player = this;

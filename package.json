@@ -2,7 +2,6 @@
   "name": "MMOTD",
   "version": "0.0.1",
   "description": "mmo td for a side project that I am working on",
-  "main": "final.js",
   "dependencies": {
     "connect": "~2.12.0",
     "socket.io-client": "~0.9.16",
@@ -12,7 +11,8 @@
   "devDependencies": {
     "grunt": "~0.4.2",
     "browserify": "~3.24.1",
-    "grunt-browserify": "~1.3.0"
+    "grunt-browserify": "~1.3.0",
+    "grunt-cli": "1.2.18"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
