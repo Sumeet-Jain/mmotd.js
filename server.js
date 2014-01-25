@@ -17,6 +17,7 @@ io.sockets.on('connection', function onConnect (socket) {
     player.attachGrid(grid);
 
     socket.set('id', currentID, function () { 
+        player.startTime = Date.now();
         clients[currentID] = player;
         clients[currentID].serverSocket = socket;
         currentID++
@@ -39,7 +40,7 @@ io.sockets.on('connection', function onConnect (socket) {
                 result = {
                     player: player,
                     grid: grid,
-                    timestamp: player.gameTime
+                    gametime: Date.now() - player.startTime
                 };
 
             player.grid = null;

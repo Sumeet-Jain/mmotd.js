@@ -49,26 +49,19 @@ Player.prototype.onConnected = function (data) {
 };
 
 Player.prototype.sync = function() {
-    //var prevGrid = this.grid.clone();
-    //this.syncRequest[this.requestNum] = prevGrid;
-    this.lastSync = Date.now();
-    this.socket.emit('sync', {
-        requestNum: this.requestNum,
-        timestamp: this.lastSync
-    });
-    this.requestNum++;
+    this.socket.emit('sync', {});
 };
 
 Player.prototype.onSynced = function (data) {
-    /*
-    var prevGrid = this.syncRequest[data.requestNum],
-        verified = prevGrid.equals(data.grid) && this.equals(data.player);
-        */
+    var lastSnapshot = player.lastSnapshot;
+    if (data.gametime > lastSnapshot) {
         this.grid.replace(data.grid);
-        this.grid.restoreCircularity();
-        this.grid.player = this;
-        this.lives = data.player.lives;
-        this.gold = data.player.gold;
+    }
+    this.grid.restoreCircularity();
+    this.grid.player = this;
+    this.lives = data.player.lives;
+    this.gold = data.player.gold;
+    this.lastSnapshot = data.gametime;
 };
 
 Player.prototype.onBuildTower = function (info) {

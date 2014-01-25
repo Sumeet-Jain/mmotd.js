@@ -56,12 +56,14 @@ Grid.prototype.replace = function (other) {
         this.towers.push(t);
     } 
 
+    /*
     for (i = 0; i < other.projectiles.length; i++) {
         var p = new Projectile();
         p.replace(other.projectiles[i]);
         p.creep.__proto__ = Creep.prototype;
         this.projectiles.push(p);
     }
+    */
 }
 
 Grid.prototype.removeCircularity = function () {

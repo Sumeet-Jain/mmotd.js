@@ -7,7 +7,7 @@ function Tower(x, y, grid) {
     this.name = 'Basic';
     this.range = 4;
     this.currCooldown = 0;
-    this.cooldown = 5000;
+    this.cooldown = 1000;
     this.background = "blue";
     this.cost = 40;
 };

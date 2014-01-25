@@ -85,5 +85,5 @@
     };
 
     setup();
-//    window['player'] = player;
+    window['player'] = player;
 })();
