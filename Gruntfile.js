@@ -4,7 +4,7 @@ module.exports = function (grunt) {
         browserify: {
             dist: {
                 files: {
-                    'game/bundle.js': ['game/init.js']
+                    'build/game.js': ['game/init.js']
                 }
             }
         }
