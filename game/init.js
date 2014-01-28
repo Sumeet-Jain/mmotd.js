@@ -13,19 +13,27 @@
 
     function draw (timestamp) { 
         var canvas = document.getElementById('moving-objs'),
-            ctx = canvas.getContext('2d');
+            ctx = canvas.getContext('2d'),
+            player_info = $('#player-info'),
+            xPos, 
+            yPos;
 
         if (!player.justSynced) {
             player.update(Date.now());
+            player.grid.updateBackground();
         } else {
             player.justSynced = false;
         }
 
+        player_info.html('<h4>' + 'Lives: ' + player.lives + '\t Gold: ' + player.gold + '</h4>');
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         if (menu.draggingItem) {
+            xPos = menu.mouseX - BLOCKSIZE/2 - 3;
+            yPos = menu.mouseY - BLOCKSIZE/2 - 3;
             ctx.fillStyle = menu.draggingItem.style.background;
-            ctx.fillRect(menu.mouseX - BLOCKSIZE/2 - 3, menu.mouseY - BLOCKSIZE/2 - 3, BLOCKSIZE - 2, BLOCKSIZE - 2);
+            ctx.fillRect(xPos, yPos, BLOCKSIZE - 2, BLOCKSIZE - 2);
         }
 
         for (var i = 0; i < player.grid.projectiles.length; i++) {
@@ -44,8 +52,8 @@
 
         function onClick(e) {
             if (menu.draggingItem) {
-                var x = Math.floor(e.pageX / BLOCKSIZE),
-                    y = Math.floor(e.pageY / BLOCKSIZE);
+                var x = Math.floor(menu.mouseX / BLOCKSIZE),
+                    y = Math.floor(menu.mouseY / BLOCKSIZE);
                 grid.buildTower(Tower, x, y);
                 if (!addMulitple)
                     menu.draggingItem = false;
@@ -55,12 +63,12 @@
         $(board).click(onClick);
         $('#send-btn').click(player.sendCreep.bind(player));
 
-        board.addEventListener("mousemove", function (e) {
+        $('body').on('mousemove', function (e) {
             var canvas = document.getElementById('moving-objs'),
-                ctx = canvas.getContext("2d");
+                box = canvas.getBoundingClientRect();
             if (menu.draggingItem) {
-                menu.mouseX = e.pageX;
-                menu.mouseY = e.pageY;
+                menu.mouseX = e.pageX - box.left;
+                menu.mouseY = e.pageY - box.top;
             }
         });
 

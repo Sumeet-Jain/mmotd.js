@@ -8,7 +8,7 @@ var Utility = require('./Utility'),
 
 var Grid = function () {
     this.rows = 10;
-    this.cols = 20;
+    this.cols = 25;
     this.sqSize = 40;
     this.creeps = [];
     this.towers = [];
@@ -21,7 +21,7 @@ var Grid = function () {
     this.endY = this.rows / 2;
 
     for(var i = 0; i < this.grid.length; i++) {
-        this.grid[i] = new Array(this.cols);
+        this.grid[i] = new Array(this.rows);
     }
 
     for(y = 0; y < this.rows; y++) {
@@ -56,7 +56,7 @@ Grid.prototype.replace = function (other) {
         this.towers.push(t);
     } 
 
-    /*
+    /* Testing to see if i can fake projectiles on client side
     for (i = 0; i < other.projectiles.length; i++) {
         var p = new Projectile();
         p.replace(other.projectiles[i]);

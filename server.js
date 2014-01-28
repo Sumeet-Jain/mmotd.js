@@ -25,8 +25,7 @@ io.sockets.on('connection', function onConnect (socket) {
     });
 
     socket.on('pong', function (data) {
-        var received = Date.now();
-        console.log('pong');
+        console.log('latency: ' + (Date.now() - data.timestamp));
     });
             
 

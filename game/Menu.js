@@ -31,7 +31,11 @@ Menu.prototype.update = function() {
         $(node).popover({
             placement: "left",
             trigger: "hover",
-            content: "hello world",
+            content: function () {
+                //Add more later
+                var content = 'Cost: ' + tower.cost;
+                return content;
+            }
         });
     }
 
