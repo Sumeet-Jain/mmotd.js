@@ -149,9 +149,9 @@ Grid.prototype.updateBackground = function () {
     var i, j, color;
     for (i = 0; i < this.grid.length; i++) {
         for (j = 0; j < this.grid[0].length; j++) {
-            color = this.grid[i][j].node.style.color;
+            color = this.grid[i][j].node.style.background;
             if (color != this.grid[i][j].texture) {
-                this.grid[i][j].node.style.backgroundColor = color;
+                this.grid[i][j].node.style.background = color;
             }
         }
     }
